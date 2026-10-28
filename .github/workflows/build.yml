@@ -19,14 +19,16 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    - name: Package Application
-      run: |
-        mkdir -p app/build/outputs/apk/debug
-        # Bundle the source files into a debug installation package
-        zip -r app/build/outputs/apk/debug/Aquamorphic-Phone.apk app/src/
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v3
+      with:
+        gradle-version: '8.4'
+
+    - name: Build Debug APK
+      run: gradle assembleDebug --stacktrace
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
         name: Aquamorphic-Phone-APK
-        path: app/build/outputs/apk/debug/*.apk
+        path: app/build/outputs/apk/debug/app-debug.apk

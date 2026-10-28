@@ -1,82 +1,119 @@
 package com.aquamorphic.phone
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlin.math.roundToInt
 
 @Composable
 fun IOS4CallScreen(callerName: String, onAnswer: () -> Unit, onDecline: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xCC1A1A1A))
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(Color(0xEE101820), Color(0xEE05080C))
+                )
+            )
     ) {
+        // Tiny, pocket-safe decline button at the top right
         Button(
             onClick = onDecline,
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF333333)),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0x66333333)),
             shape = CircleShape,
+            contentPadding = PaddingValues(0.dp),
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .padding(top = 40.dp, end = 20.dp)
-                .size(40.dp)
+                .padding(top = 48.dp, end = 24.dp)
+                .size(36.dp)
         ) {
-            Text("X", color = Color.Gray, fontSize = 12.sp)
+            Text("✕", color = Color(0xFFAAAAAA), fontSize = 14.sp)
         }
 
+        // Caller Information Header
         Column(
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .padding(top = 100.dp),
+                .padding(top = 110.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
                 text = callerName,
                 color = Color.White,
-                fontSize = 32.sp,
+                fontSize = 34.sp,
                 fontWeight = FontWeight.Light
             )
             Text(
                 text = "mobile",
-                color = Color.LightGray,
-                fontSize = 16.sp,
-                modifier = Modifier.padding(top = 8.dp)
+                color = Color(0xFF99AABB),
+                fontSize = 17.sp,
+                modifier = Modifier.padding(top = 6.dp)
             )
         }
 
-        Box(
+        // Authentic iOS 4 Drag-to-Answer Slider
+        BoxWithConstraints(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 60.dp, start = 30.dp, end = 30.dp)
+                .padding(bottom = 64.dp, start = 28.dp, end = 28.dp)
                 .fillMaxWidth()
-                .height(75.dp)
-                .background(Color(0x80000000), shape = RoundedCornerShape(35.dp)),
+                .height(76.dp)
+                .background(Color(0x99000000), shape = RoundedCornerShape(38.dp))
+                .padding(6.dp),
             contentAlignment = Alignment.CenterStart
         ) {
+            val maxSlidePx = with(LocalDensity.current) { (maxWidth - 64.dp).toPx() }
+            var offsetX by remember { mutableStateOf(0f) }
+
             Text(
                 text = "slide to answer",
-                color = Color(0xFF888888),
+                color = Color(0xFF8899AA),
                 modifier = Modifier.align(Alignment.Center),
                 fontSize = 20.sp
             )
-            
-            Button(
-                onClick = onAnswer,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CD964)),
-                shape = CircleShape,
+
+            Box(
                 modifier = Modifier
-                    .padding(5.dp)
-                    .fillMaxHeight()
-                    .aspectRatio(1f)
-            ) {}
+                    .offset { IntOffset(offsetX.roundToInt(), 0) }
+                    .size(64.dp)
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(Color(0xFF66EE77), Color(0xFF28A745))
+                        ),
+                        shape = CircleShape
+                    )
+                    .draggable(
+                        orientation = Orientation.Horizontal,
+                        state = rememberDraggableState { delta ->
+                            offsetX = (offsetX + delta).coerceIn(0f, maxSlidePx)
+                        },
+                        onDragStopped = {
+                            if (offsetX > maxSlidePx * 0.75f) {
+                                onAnswer()
+                            } else {
+                                offsetX = 0f
+                            }
+                        }
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("➔", color = Color.White, fontSize = 24.sp)
+            }
         }
     }
 }
