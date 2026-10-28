@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.aquamorphic.phone">
+
+    <uses-permission android:name="android.permission.MANAGE_OWN_CALLS"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    
+    <application
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="Nexus Phone"
+        android:theme="@style/Theme.AppCompat.NoActionBar"
+        android:directBootAware="true">
+        
+        <service
+            android:name=".NexusInCallService"
+            android:permission="android.permission.BIND_INCALL_SERVICE"
+            android:directBootAware="true"
+            android:exported="true">
+            <meta-data
+                android:name="android.telecom.IN_CALL_SERVICE_UI"
+                android:value="true" />
+            <intent-filter>
+                <action android:name="android.telecom.InCallService" />
+            </intent-filter>
+        </service>
+
+        <activity
+            android:name=".CallScreenActivity"
+            android:exported="true"
+            android:directBootAware="true"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true">
+        </activity>
+    </application>
+</manifest>
