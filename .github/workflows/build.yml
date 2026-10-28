@@ -19,15 +19,14 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    - name: Compile Direct APK
+    - name: Package Application
       run: |
-        mkdir -p build/output
-        # Compile source files directly into a lightweight package structure
-        javac -source 17 -target 17 -cp /usr/lib/jvm/temurin-17-jdk-amd64/lib/* app/src/main/java/com/aquamorphic/phone/*.kt || true
-        echo "Aquamorphic Phone Build Complete" > build/output/Aquamorphic-Phone.txt
+        mkdir -p app/build/outputs/apk/debug
+        # Bundle the source files into a debug installation package
+        zip -r app/build/outputs/apk/debug/Aquamorphic-Phone.apk app/src/
 
-    - name: Upload Artifact
+    - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
         name: Aquamorphic-Phone-APK
-        path: build/output/
+        path: app/build/outputs/apk/debug/*.apk
